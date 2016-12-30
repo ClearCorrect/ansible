@@ -171,7 +171,14 @@ options:
         (requires libcloud >= 0.20.0)
     required: false
     default: "false"
-
+  disk_type:
+    description:
+      - the type of boot disk
+    required: false
+    default: "pd-standard"
+    choices: ["pd-standard, "pd-ssd"]
+    version_added: "2.3"
+ 
 requirements:
     - "python >= 2.6"
     - "apache-libcloud >= 0.13.3, >= 0.17.0 if using JSON credentials,
@@ -384,6 +391,7 @@ def create_instances(module, gce, instance_names, number):
     external_ip = module.params.get('external_ip')
     disk_auto_delete = module.params.get('disk_auto_delete')
     preemptible = module.params.get('preemptible')
+    disk_type = module.params.get('disk_type')
     service_account_permissions = module.params.get('service_account_permissions')
     service_account_email = module.params.get('service_account_email')
 
@@ -472,6 +480,7 @@ def create_instances(module, gce, instance_names, number):
         ex_network=network, ex_tags=tags, ex_metadata=metadata,
         ex_can_ip_forward=ip_forward,
         external_ip=instance_external_ip, ex_disk_auto_delete=disk_auto_delete,
+        ex_disk_type=disk_type,
         ex_service_accounts=ex_sa_perms
     )
     if preemptible is not None:
@@ -636,6 +645,7 @@ def main():
             external_ip=dict(default='ephemeral'),
             disk_auto_delete = dict(type='bool', default=True),
             preemptible = dict(type='bool', default=None),
+            disk_type = dict(choices=['pd-standard','pd-ssd'], default='pd-standard'),
         ),
         mutually_exclusive=[('instance_names', 'name')]
     )
